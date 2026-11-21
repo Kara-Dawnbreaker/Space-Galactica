@@ -1,0 +1,6 @@
+export class Input{
+constructor(canvas){this.canvas=canvas;this.keys=new Set();this.pointer=null;window.addEventListener("keydown",event=>{const key=event.key.toLowerCase();if(["arrowup","arrowdown","arrowleft","arrowright"," "].includes(key))event.preventDefault();this.keys.add(key)});window.addEventListener("keyup",event=>this.keys.delete(event.key.toLowerCase()));window.addEventListener("blur",()=>this.reset());canvas.addEventListener("pointerdown",event=>{this.pointer=this.positionFromEvent(event);canvas.setPointerCapture?.(event.pointerId)});canvas.addEventListener("pointermove",event=>{if(this.pointer)this.pointer=this.positionFromEvent(event)});const release=()=>{this.pointer=null};canvas.addEventListener("pointerup",release);canvas.addEventListener("pointercancel",release);canvas.addEventListener("lostpointercapture",release)}
+positionFromEvent(event){const rect=this.canvas.getBoundingClientRect();return{x:event.clientX-rect.left,y:event.clientY-rect.top}}
+getMovement(){let x=0,y=0;if(this.keys.has("a")||this.keys.has("arrowleft"))x--;if(this.keys.has("d")||this.keys.has("arrowright"))x++;if(this.keys.has("w")||this.keys.has("arrowup"))y--;if(this.keys.has("s")||this.keys.has("arrowdown"))y++;const length=Math.hypot(x,y);if(length>1){x/=length;y/=length}return{x,y,pointer:this.pointer}}
+reset(){this.keys.clear();this.pointer=null}
+}
