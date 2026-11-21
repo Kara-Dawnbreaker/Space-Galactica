@@ -3,16 +3,35 @@
 A browser-first retro arcade survival shooter for desktop, mobile and tablets.
 
 ## Run locally
-Open `index.html` in a modern browser. The foundation uses native HTML, CSS and JavaScript modules with no build step or external runtime dependencies. If your browser blocks local ES modules, run a small local static server from this folder.
 
-## Current status
-Phase 1 — Foundation:
+Use a local static server from the project folder. For example, with Python installed:
+
+```bash
+python -m http.server 8000
+```
+
+Then open `http://localhost:8000`. A local server is recommended because the game uses native JavaScript modules.
+
+## Development checks
+
+Requires Node.js 22 or later:
+
+```bash
+npm test
+```
+
+The tests use Node's built-in test runner; no third-party packages are required.
+
+## Phase 1 — Foundation
+
 - Deep Space and Deep Sea mode selection
-- Responsive canvas rendering
+- Responsive canvas sizing with capped high-DPI rendering
 - Keyboard movement (WASD / arrow keys)
-- Pointer and touch drag movement
-- Pause, resume and restart
-- Separate core, input, rendering and entity modules
-- Collision helper functions prepared for combat systems
+- Pointer and touch-drag movement with pointer identity tracking
+- Pause, resume, restart and automatic pause when the tab is hidden
+- Separate game, input, rendering and player modules
+- Collision helper functions
+- Automated tests for player bounds, movement and collision rules
+- GitHub Actions test workflow
 
-Combat, enemies, waves, weapons, drops and progression are not implemented yet.
+Combat, enemies, waves, weapons, drops and progression are intentionally not implemented yet.
