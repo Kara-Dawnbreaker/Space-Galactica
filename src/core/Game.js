@@ -5,6 +5,9 @@ import { Enemy } from "../entities/Enemy.js";
 import { Projectile } from "../entities/Projectile.js";
 import { WaveDirector } from "../systems/WaveDirector.js";
 import { SoundManager } from "./SoundManager.js";
+import { WeaponSystem } from "../systems/WeaponSystem.js";
+import { AbilitySystem } from "../systems/AbilitySystem.js";
+import { WeaponPickup } from "../entities/WeaponPickup.js";
 import { circleIntersectsCircle } from "./collision.js";
 
 export class Game {
@@ -20,6 +23,9 @@ export class Game {
     this.player = new Player();
     this.waveDirector = new WaveDirector();
     this.sound = new SoundManager();
+    this.weaponSystem = new WeaponSystem();
+    this.abilitySystem = new AbilitySystem();
+    this.weaponPickups = [];
     this.enemies = [];
     this.projectiles = [];
     this.particles = [];
@@ -70,9 +76,11 @@ export class Game {
     this.enemies = [];
     this.projectiles = [];
     this.particles = [];
+    this.weaponPickups = [];
+    this.weaponSystem.resetRun();
+    this.abilitySystem = new AbilitySystem();
     this.score = 0;
     this.enemySequence = 0;
-    this.fireTimer = 0.2;
     this.waveDirector.begin(1);
     this.state = "running";
     this.lastTime = 0;
@@ -95,17 +103,16 @@ export class Game {
 
   update(delta) {
     this.player.update(delta, this.input, this.width, this.height);
-    this.fireTimer -= delta;
-    if (this.fireTimer <= 0) {
-      this.projectiles.push(new Projectile({
-        x: this.player.x, y: this.player.y - 17, vy: -590, damage: 20, owner: "player", radius: 4
-      }));
-      this.fireTimer = 0.27;
-    }
+    this.weaponSystem.update(delta);
+    this.abilitySystem.update(delta);
+    for (const shot of this.weaponSystem.fire(this.player.x, this.player.y)) this.projectiles.push(shot);
 
     const waveEvent = this.waveDirector.update(delta, this.enemies.length);
     if (waveEvent.spawn) this.spawnEnemy();
-    if (waveEvent.waveStarted) this.emitHud();
+    if (waveEvent.waveStarted) {
+      this.spawnScheduledWeaponDrop(this.waveDirector.wave);
+      this.emitHud();
+    }
 
     for (const enemy of this.enemies) {
       enemy.contactCooldown = Math.max(0, (enemy.contactCooldown ?? 0) - delta);
@@ -124,9 +131,12 @@ export class Game {
     }
 
     for (const projectile of this.projectiles) projectile.update(delta, this.width, this.height);
+    for (const pickup of this.weaponPickups) pickup.update(delta, this.height);
     this.resolveCollisions();
+    this.collectWeaponPickups();
     this.enemies = this.enemies.filter((enemy) => !enemy.destroyed && enemy.y < this.height + enemy.radius + 12);
     this.projectiles = this.projectiles.filter((projectile) => projectile.active);
+    this.weaponPickups = this.weaponPickups.filter((pickup) => pickup.active);
     this.updateParticles(delta);
     this.emitHud();
   }
@@ -148,9 +158,11 @@ export class Game {
         for (const enemy of this.enemies) {
           if (enemy.destroyed) continue;
           if (circleIntersectsCircle(projectile, enemy)) {
-            projectile.active = false;
+            if (projectile.pierceRemaining > 0) projectile.pierceRemaining -= 1;
+            else projectile.active = false;
             if (enemy.takeDamage(projectile.damage)) {
               this.score += enemy.scoreValue;
+              this.weaponSystem.updateProgress(this.score);
               this.sound.play("destroy");
               this.burst(enemy.x, enemy.y, enemy.type === "tank" ? 18 : 10);
             }
@@ -173,6 +185,7 @@ export class Game {
       if (circleIntersectsCircle(enemy, this.player)) {
         if (enemy.takeDamage(25)) {
           this.score += enemy.scoreValue;
+          this.weaponSystem.updateProgress(this.score);
           this.sound.play("destroy");
         }
         enemy.contactCooldown = 0.7;
@@ -182,6 +195,42 @@ export class Game {
         if (result.gameOver) this.finishRun();
       }
     }
+  }
+
+  spawnScheduledWeaponDrop(wave) {
+    if (!this.weaponSystem.isDropWave(wave)) return;
+    const weaponId = this.weaponSystem.chooseDrop();
+    if (!weaponId) return;
+    this.weaponSystem.markDrop(wave);
+    const margin = 24;
+    const x = margin + Math.random() * Math.max(1, this.width - margin * 2);
+    this.weaponPickups.push(new WeaponPickup({ x, y: -18, weaponId }));
+  }
+
+  collectWeaponPickups() {
+    for (const pickup of this.weaponPickups) {
+      if (!pickup.active || !circleIntersectsCircle(pickup, this.player)) continue;
+      this.weaponSystem.equip(pickup.weaponId);
+      pickup.active = false;
+      this.sound.play("destroy");
+      this.burst(pickup.x, pickup.y, 14);
+      this.callbacks.onWeaponChange?.(this.weaponSystem.currentWeapon);
+    }
+  }
+
+  activateOvercharge() {
+    if (this.state !== "running") return false;
+    const result = this.abilitySystem.activate(this.player, this.enemies);
+    if (!result.activated) return false;
+    this.sound.play("destroy");
+    this.burst(this.player.x, this.player.y, 30);
+    for (const enemy of result.destroyed) {
+      this.score += enemy.scoreValue;
+      this.weaponSystem.updateProgress(this.score);
+      this.burst(enemy.x, enemy.y, 16);
+    }
+    this.emitHud();
+    return true;
   }
 
   burst(x, y, count) {
@@ -215,12 +264,16 @@ export class Game {
     this.callbacks.onHudUpdate?.({
       score: this.score, wave: this.waveDirector.wave, health: this.player.health,
       maxHealth: this.player.maxHealth, shield: this.player.shield,
-      maxShield: this.player.maxShield, lives: this.player.lives
+      maxShield: this.player.maxShield, lives: this.player.lives,
+      weapon: this.weaponSystem.currentWeapon.name,
+      abilityReady: this.abilitySystem.ready,
+      abilityProgress: this.abilitySystem.progress,
+      abilityCooldown: this.abilitySystem.cooldown
     });
   }
 
   render() {
-    this.renderer.draw(this.width, this.height, this.mode, this.player, this.state, this.enemies, this.projectiles, this.particles);
+    this.renderer.draw(this.width, this.height, this.mode, this.player, this.state, this.enemies, this.projectiles, this.particles, this.weaponPickups);
   }
 
   toggleSound() {
