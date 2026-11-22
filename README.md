@@ -39,14 +39,24 @@ The tests use Node's built-in test runner; no third-party packages are required.
 - Three enemy classes: standard drone, fast scout and armoured tank
 - Enemy movement patterns and aimed return fire
 - Projectile hits and ship-to-enemy collision damage
-- Hull health, rechargeable-by-pickup-ready shield capacity, and three starting lives
+- Hull health, shield capacity and three starting lives
 - Score for destroyed enemies (score is not currency)
 - Endless escalating enemy waves with short clear-wave intermissions
 - Combat HUD, game-over screen and basic impact/explosion particles
 - Optional synthesized retro hit/destruction sounds with an in-game sound toggle
 - Deep Space and Deep Sea visual palettes retained
 
-Meteorite waves, workshop, bosses, general drops, upgrades, currency, and the completed-cycle progression are reserved for later phases.
+Meteorite waves, workshop, bosses, upgrades, and completed-cycle progression are reserved for later phases.
+
+## Phase 3 — Weapons and abilities
+
+- Twenty distinct primary weapons with different firing patterns, rates, damage and projectile behaviour
+- Five starter weapons; further weapons unlock through score milestones and persist in browser storage
+- Two scheduled weapon pickup drops per ten-wave cycle (on enemy waves 3 and 6)
+- A collected weapon replaces the currently equipped weapon and remains equipped until another pickup is collected
+- Piercing projectiles can hit multiple enemies, but each projectile damages a given enemy only once
+- Overcharge area blast with a 12-second cooldown
+- Keyboard and on-screen ability controls
 
 ## Phase 4 — Drops and rewards
 
@@ -63,13 +73,4 @@ Meteorite waves, workshop, bosses, general drops, upgrades, currency, and the co
 - Touch devices: drag on the playfield
 - Weapon: automatic fire
 - Pause/resume: Pause button, P key, or Escape
-
-## Phase 3 — Weapons and abilities
-
-- Twenty distinct primary weapons with different firing patterns, rates, damage and projectile behaviour
-- Five starter weapons; further weapons unlock through score milestones and persist in browser storage
-- Two scheduled weapon pickup drops per ten-wave cycle (on enemy waves 3 and 6)
-- A collected weapon replaces the currently equipped weapon and remains equipped until another pickup is collected
-- Piercing projectile support
-- Overcharge area blast with a 12-second cooldown
-- Keyboard and on-screen ability controls
+- Overcharge: Space or the on-screen ability button
