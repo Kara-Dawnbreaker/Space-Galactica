@@ -19,7 +19,9 @@ export class Enemy {
     this.age += delta;
     this.y += this.speed * delta;
     this.x += Math.sin(this.age * (this.type === "scout" ? 2.7 : 1.25) + this.phase) * (this.type === "scout" ? 92 : 34) * delta;
-    this.x = Math.max(this.radius + 5, Math.min(width - this.radius - 5, this.x));
+    const minX = Math.min(this.radius + 5, width / 2);
+    const maxX = Math.max(minX, width - this.radius - 5);
+    this.x = Math.max(minX, Math.min(maxX, this.x));
     this.fireTimer -= delta;
     return this.fireTimer <= 0 && this.y < height * 0.78;
   }
