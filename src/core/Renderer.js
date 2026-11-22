@@ -7,7 +7,7 @@ export class Renderer {
     }));
   }
 
-  draw(width, height, mode, player, state, enemies = [], projectiles = [], particles = [], pickups = []) {
+  draw(width, height, mode, player, state, enemies = [], projectiles = [], particles = [], pickups = [], abilityEffects = []) {
     const ctx = this.ctx;
     const sea = mode === "sea";
     const gradient = ctx.createLinearGradient(0, 0, width, height);
@@ -21,6 +21,7 @@ export class Renderer {
     this.drawBackdrop(width, height, sea);
     if (state !== "menu") {
       enemies.forEach((enemy) => this.drawEnemy(enemy, sea));
+      abilityEffects.forEach((effect) => this.drawAbilityEffect(effect, sea));
       pickups.forEach((pickup) => this.drawWeaponPickup(pickup));
       projectiles.forEach((projectile) => this.drawProjectile(projectile, sea));
       particles.forEach((particle) => this.drawParticle(particle, sea));
@@ -87,10 +88,25 @@ export class Renderer {
 
   drawProjectile(projectile, sea) {
     const ctx = this.ctx;
-    const colors = { "heavy-bolt": "#ffb45e", "plasma-orb": "#bc8cff", "rail-shot": "#fff2a8", "singularity": "#df9cff", "solar-flare": "#ff9b5e", "piercer": "#9cf7ff" };
+    const colors = { "twin-lance": "#91eaff", "spread-shot": "#a8ffdc", "heavy-bolt": "#ffb45e", "needle-stream": "#fff2a8", "burst-cannon": "#ff9b9b", "sidewinders": "#9fffe8", "arc-splitter": "#d5a0ff", "plasma-orb": "#bc8cff", "piercer": "#9cf7ff", "nova-fan": "#ffcf7a", "wave-beam": "#7ef0ff", "rail-shot": "#fff2a8", "flak-burst": "#ff9c70", "prism-array": "#c1a8ff", "vortex-disc": "#b3a0ff", "solar-flare": "#ff9b5e", "void-repeater": "#b0aaff", "meteor-driver": "#ff865e", "singularity": "#df9cff" };
     ctx.save(); ctx.fillStyle = projectile.owner === "player" ? (colors[projectile.style] ?? (sea ? "#7effe9" : "#8cecff")) : "#ff8d9d";
     ctx.shadowColor = ctx.fillStyle; ctx.shadowBlur = 10;
     ctx.beginPath(); ctx.arc(projectile.x, projectile.y, projectile.radius, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+  }
+
+  drawAbilityEffect(effect, sea) {
+    const ctx = this.ctx;
+    const progress = 1 - effect.life / effect.maxLife;
+    ctx.save();
+    ctx.globalAlpha = Math.max(0, 1 - progress);
+    ctx.strokeStyle = sea ? "#83fff0" : "#9ceaff";
+    ctx.lineWidth = 5 * (1 - progress) + 1;
+    ctx.shadowColor = ctx.strokeStyle;
+    ctx.shadowBlur = 22;
+    ctx.beginPath();
+    ctx.arc(effect.x, effect.y, effect.radius * progress, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.restore();
   }
 
   drawWeaponPickup(pickup) {
