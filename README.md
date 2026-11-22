@@ -1,6 +1,6 @@
 # Space Galactica
 
-A browser-first retro arcade survival shooter for desktop, mobile and tablets.
+An original browser-first retro arcade survival shooter for desktop, mobile and tablets.
 
 ## Run locally
 
@@ -31,7 +31,25 @@ The tests use Node's built-in test runner; no third-party packages are required.
 - Pause, resume, restart and automatic pause when the tab is hidden
 - Separate game, input, rendering and player modules
 - Collision helper functions
-- Automated tests for player bounds, movement and collision rules
-- GitHub Actions test workflow
+- Automated tests and GitHub Actions checks
 
-Combat, enemies, waves, weapons, drops and progression are intentionally not implemented yet.
+## Phase 2 — Core Combat
+
+- Automatic primary-weapon fire and player/enemy projectiles
+- Three enemy classes: standard drone, fast scout and armoured tank
+- Enemy movement patterns and aimed return fire
+- Projectile hits and ship-to-enemy collision damage
+- Hull health, rechargeable-by-pickup-ready shield capacity, and three starting lives
+- Score for destroyed enemies (score is not currency)
+- Endless escalating enemy waves with short clear-wave intermissions
+- Combat HUD, game-over screen and basic impact/explosion particles
+- Deep Space and Deep Sea visual palettes retained
+
+The workshop, meteorite waves, bosses, weapon collection, drops, upgrades, currency, and permanent progression are reserved for later phases.
+
+## Controls
+
+- Move: WASD or arrow keys
+- Touch devices: drag on the playfield
+- Weapon: automatic fire
+- Pause/resume: Pause button, P key, or Escape
