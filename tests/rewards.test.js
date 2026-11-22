@@ -29,7 +29,7 @@ test("weighted reward rolls produce all four supported reward types", () => {
 test("reward pickup falls and deactivates after leaving the playfield", () => {
   const pickup = new DropPickup({ x: 20, y: 10, type: "credits", value: 12 });
   pickup.update(1.1, 100);
-  assert.equal(pickup.y, 125.5);
+  assert.ok(Math.abs(pickup.y - 125.5) < 1e-9);
   assert.equal(pickup.active, false);
 });
 
