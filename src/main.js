@@ -9,6 +9,7 @@ const elements = {
   soundButton: document.querySelector("#sound-button"),
   abilityButton: document.querySelector("#ability-button"),
   weaponValue: document.querySelector("#weapon-value"),
+  creditValue: document.querySelector("#credit-value"),
   abilityStatus: document.querySelector("#ability-status"),
   resumeButton: document.querySelector("#resume-button"),
   restartButton: document.querySelector("#restart-button"),
@@ -58,6 +59,7 @@ const game = new Game(elements.canvas, {
     elements.shieldValue.textContent = Math.ceil(hud.shield);
     elements.livesValue.textContent = "♥".repeat(hud.lives) || "—";
     elements.weaponValue.textContent = hud.weapon;
+    elements.creditValue.textContent = hud.credits.toLocaleString();
     elements.abilityStatus.textContent = hud.abilityReady ? "READY" : `${hud.abilityCooldown.toFixed(1)}s`;
     elements.abilityButton.disabled = !hud.abilityReady;
     elements.abilityButton.setAttribute("aria-label", hud.abilityReady ? "Activate Overcharge" : `Overcharge recharging: ${hud.abilityCooldown.toFixed(1)} seconds`);

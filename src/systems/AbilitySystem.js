@@ -10,6 +10,12 @@ export class AbilitySystem {
     this.cooldown = Math.max(0, this.cooldown - Math.max(0, delta));
   }
 
+  reduceCooldown(seconds) {
+    const before = this.cooldown;
+    this.cooldown = Math.max(0, this.cooldown - Math.max(0, seconds));
+    return before - this.cooldown;
+  }
+
   activate(player, enemies) {
     if (this.cooldown > 0) return { activated: false, destroyed: [] };
     this.cooldown = this.cooldownDuration;

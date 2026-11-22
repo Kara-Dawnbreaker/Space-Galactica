@@ -77,6 +77,12 @@ export class Player {
     return { applied: true, lifeLost: true, gameOver: false };
   }
 
+  restoreHealth(amount) {
+    const before = this.health;
+    this.health = Math.min(this.maxHealth, this.health + Math.max(0, amount));
+    return this.health - before;
+  }
+
   restoreShield(amount) {
     this.shield = Math.min(this.maxShield, this.shield + Math.max(0, amount));
   }

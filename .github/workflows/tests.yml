@@ -1,8 +1,8 @@
-name: Phase 2 combat checks
+name: Space Galactica automated checks
 
 on:
   push:
-    branches: [main, phase-1-foundation, phase-2-core-combat, phase-3-weapons-abilities]
+    branches: [main, phase-1-foundation, phase-2-core-combat, phase-3-weapons-abilities, phase-4-drops-rewards]
   pull_request:
     branches: [main, phase-1-foundation]
 

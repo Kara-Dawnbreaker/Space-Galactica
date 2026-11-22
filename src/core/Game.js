@@ -8,6 +8,8 @@ import { SoundManager } from "./SoundManager.js";
 import { WeaponSystem } from "../systems/WeaponSystem.js";
 import { AbilitySystem } from "../systems/AbilitySystem.js";
 import { WeaponPickup } from "../entities/WeaponPickup.js";
+import { DropPickup } from "../entities/DropPickup.js";
+import { DropSystem } from "../systems/DropSystem.js";
 import { circleIntersectsCircle } from "./collision.js";
 
 export class Game {
@@ -25,7 +27,10 @@ export class Game {
     this.sound = new SoundManager();
     this.weaponSystem = new WeaponSystem();
     this.abilitySystem = new AbilitySystem();
+    this.dropSystem = new DropSystem();
     this.weaponPickups = [];
+    this.rewardPickups = [];
+    this.credits = 0;
     this.abilityEffects = [];
     this.enemies = [];
     this.projectiles = [];
@@ -77,6 +82,8 @@ export class Game {
     this.projectiles = [];
     this.particles = [];
     this.weaponPickups = [];
+    this.rewardPickups = [];
+    this.credits = 0;
     this.abilityEffects = [];
     this.weaponSystem.resetRun();
     this.abilitySystem = new AbilitySystem();
@@ -133,11 +140,14 @@ export class Game {
 
     for (const projectile of this.projectiles) projectile.update(delta, this.width, this.height);
     for (const pickup of this.weaponPickups) pickup.update(delta, this.height);
+    for (const pickup of this.rewardPickups) pickup.update(delta, this.height);
     this.resolveCollisions();
     this.collectWeaponPickups();
+    this.collectRewardPickups();
     this.enemies = this.enemies.filter((enemy) => !enemy.destroyed && enemy.y < this.height + enemy.radius + 12);
     this.projectiles = this.projectiles.filter((projectile) => projectile.active);
     this.weaponPickups = this.weaponPickups.filter((pickup) => pickup.active);
+    this.rewardPickups = this.rewardPickups.filter((pickup) => pickup.active);
     this.updateParticles(delta);
     for (const effect of this.abilityEffects) effect.life -= delta;
     this.abilityEffects = this.abilityEffects.filter((effect) => effect.life > 0);
@@ -159,6 +169,16 @@ export class Game {
     this.weaponSystem.updateProgress(this.score);
     this.sound.play("destroy");
     this.burst(enemy.x, enemy.y, enemy.type === "tank" ? 18 : 10);
+    this.spawnRewardDrop(enemy.x, enemy.y);
+  }
+
+  spawnRewardDrop(x, y) {
+    const activeCount = this.rewardPickups.filter((pickup) => pickup.active).length;
+    if (activeCount >= this.dropSystem.maxActiveDrops) return false;
+    const reward = this.dropSystem.rollDrop();
+    if (!reward) return false;
+    this.rewardPickups.push(new DropPickup({ x, y, ...reward }));
+    return true;
   }
 
   resolveCollisions() {
@@ -218,6 +238,23 @@ export class Game {
     }
   }
 
+  collectRewardPickups() {
+    for (const pickup of this.rewardPickups) {
+      if (!pickup.active || !circleIntersectsCircle(pickup, this.player)) continue;
+      if (pickup.type === "repair" && this.player.health >= this.player.maxHealth) continue;
+      if (pickup.type === "shield" && this.player.shield >= this.player.maxShield) continue;
+      if (pickup.type === "overcharge" && this.abilitySystem.ready) continue;
+      if (pickup.type === "credits") this.credits += pickup.value;
+      else if (pickup.type === "repair") this.player.restoreHealth(pickup.value);
+      else if (pickup.type === "shield") this.player.restoreShield(pickup.value);
+      else if (pickup.type === "overcharge") this.abilitySystem.reduceCooldown(pickup.value);
+      else continue;
+      pickup.active = false;
+      this.sound.play("destroy");
+      this.burst(pickup.x, pickup.y, 10);
+    }
+  }
+
   activateOvercharge() {
     if (this.state !== "running") return false;
     const result = this.abilitySystem.activate(this.player, this.enemies);
@@ -225,11 +262,7 @@ export class Game {
     this.sound.play("destroy");
     this.abilityEffects.push({ x: this.player.x, y: this.player.y, radius: this.abilitySystem.radius, life: 0.48, maxLife: 0.48 });
     this.burst(this.player.x, this.player.y, 30);
-    for (const enemy of result.destroyed) {
-      this.score += enemy.scoreValue;
-      this.weaponSystem.updateProgress(this.score);
-      this.burst(enemy.x, enemy.y, 16);
-    }
+    for (const enemy of result.destroyed) this.awardEnemyKill(enemy);
     this.emitHud();
     return true;
   }
@@ -266,6 +299,7 @@ export class Game {
       score: this.score, wave: this.waveDirector.wave, health: this.player.health,
       maxHealth: this.player.maxHealth, shield: this.player.shield,
       maxShield: this.player.maxShield, lives: this.player.lives,
+      credits: this.credits,
       weapon: this.weaponSystem.currentWeapon.name,
       abilityReady: this.abilitySystem.ready,
       abilityProgress: this.abilitySystem.progress,
@@ -274,7 +308,7 @@ export class Game {
   }
 
   render() {
-    this.renderer.draw(this.width, this.height, this.mode, this.player, this.state, this.enemies, this.projectiles, this.particles, this.weaponPickups, this.abilityEffects);
+    this.renderer.draw(this.width, this.height, this.mode, this.player, this.state, this.enemies, this.projectiles, this.particles, this.weaponPickups, this.abilityEffects, this.rewardPickups);
   }
 
   toggleSound() {

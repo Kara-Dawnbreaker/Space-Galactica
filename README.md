@@ -48,6 +48,15 @@ The tests use Node's built-in test runner; no third-party packages are required.
 
 Meteorite waves, workshop, bosses, general drops, upgrades, currency, and the completed-cycle progression are reserved for later phases.
 
+## Phase 4 — Drops and rewards
+
+- Rare enemy-kill salvage drops with a cap of three active reward pickups at once
+- Four distinct rewards: temporary salvage credits, hull repair, shield restoration, and Overcharge cooldown reduction
+- Reward pickups have separate visuals and fall away if not collected
+- Full-health, full-shield, and already-ready Overcharge pickups are not wasted on collection
+- Salvage credits are run-only, reset when a new run starts, and are separate from score and permanent weapon unlocks
+- Scheduled weapon pickups remain a separate Phase 3 system
+
 ## Controls
 
 - Move: WASD or arrow keys

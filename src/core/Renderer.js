@@ -7,7 +7,7 @@ export class Renderer {
     }));
   }
 
-  draw(width, height, mode, player, state, enemies = [], projectiles = [], particles = [], pickups = [], abilityEffects = []) {
+  draw(width, height, mode, player, state, enemies = [], projectiles = [], particles = [], pickups = [], abilityEffects = [], rewardPickups = []) {
     const ctx = this.ctx;
     const sea = mode === "sea";
     const gradient = ctx.createLinearGradient(0, 0, width, height);
@@ -23,6 +23,7 @@ export class Renderer {
       enemies.forEach((enemy) => this.drawEnemy(enemy, sea));
       abilityEffects.forEach((effect) => this.drawAbilityEffect(effect, sea));
       pickups.forEach((pickup) => this.drawWeaponPickup(pickup));
+      rewardPickups.forEach((pickup) => this.drawRewardPickup(pickup));
       projectiles.forEach((projectile) => this.drawProjectile(projectile, sea));
       particles.forEach((particle) => this.drawParticle(particle, sea));
       this.drawPlayer(player, sea);
@@ -124,6 +125,24 @@ export class Renderer {
     ctx.fillStyle = "#33250b";
     ctx.fillRect(-2, -6, 4, 12);
     ctx.restore();
+  }
+
+  drawRewardPickup(pickup) {
+    const ctx = this.ctx;
+    const styles = {
+      credits: { color: "#f4d47d", glyph: "$" },
+      repair: { color: "#8dffad", glyph: "+" },
+      shield: { color: "#82cfff", glyph: "S" },
+      overcharge: { color: "#d6a0ff", glyph: "O" }
+    };
+    const style = styles[pickup.type] ?? styles.credits;
+    const pulse = 1 + Math.sin(pickup.age * 5) * 0.08;
+    ctx.save(); ctx.translate(pickup.x, pickup.y); ctx.scale(pulse, pulse);
+    ctx.shadowColor = style.color; ctx.shadowBlur = 15; ctx.fillStyle = "#101b2b";
+    ctx.strokeStyle = style.color; ctx.lineWidth = 2; ctx.beginPath();
+    ctx.arc(0, 0, pickup.radius, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    ctx.shadowBlur = 0; ctx.fillStyle = style.color; ctx.font = "bold 15px Trebuchet MS, sans-serif";
+    ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(style.glyph, 0, 1); ctx.restore();
   }
 
   drawParticle(particle, sea) {
