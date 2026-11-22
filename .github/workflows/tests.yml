@@ -2,7 +2,7 @@ name: Phase 2 combat checks
 
 on:
   push:
-    branches: [main, phase-1-foundation, phase-2-core-combat]
+    branches: [main, phase-1-foundation, phase-2-core-combat, phase-3-weapons-abilities]
   pull_request:
     branches: [main, phase-1-foundation]
 
