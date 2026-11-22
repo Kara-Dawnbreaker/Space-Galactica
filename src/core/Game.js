@@ -154,23 +154,24 @@ export class Game {
     this.enemies.push(new Enemy({ x, y: -24 - (sequence % 3) * 18, type, wave, seed: sequence }));
   }
 
+  awardEnemyKill(enemy) {
+    this.score += enemy.scoreValue;
+    this.weaponSystem.updateProgress(this.score);
+    this.sound.play("destroy");
+    this.burst(enemy.x, enemy.y, enemy.type === "tank" ? 18 : 10);
+  }
+
   resolveCollisions() {
     for (const projectile of this.projectiles) {
       if (!projectile.active) continue;
       if (projectile.owner === "player") {
         for (const enemy of this.enemies) {
-          if (enemy.destroyed) continue;
-          if (circleIntersectsCircle(projectile, enemy)) {
-            if (projectile.pierceRemaining > 0) projectile.pierceRemaining -= 1;
-            else projectile.active = false;
-            if (enemy.takeDamage(projectile.damage)) {
-              this.score += enemy.scoreValue;
-              this.weaponSystem.updateProgress(this.score);
-              this.sound.play("destroy");
-              this.burst(enemy.x, enemy.y, enemy.type === "tank" ? 18 : 10);
-            }
-            break;
-          }
+          if (enemy.destroyed || !circleIntersectsCircle(projectile, enemy)) continue;
+          if (!projectile.registerHit(enemy)) continue;
+          if (projectile.pierceRemaining > 0) projectile.pierceRemaining -= 1;
+          else projectile.active = false;
+          if (enemy.takeDamage(projectile.damage)) this.awardEnemyKill(enemy);
+          if (!projectile.active) break;
         }
       } else if (circleIntersectsCircle(projectile, this.player)) {
         projectile.active = false;
@@ -186,11 +187,7 @@ export class Game {
     for (const enemy of this.enemies) {
       if (enemy.destroyed || enemy.contactCooldown > 0) continue;
       if (circleIntersectsCircle(enemy, this.player)) {
-        if (enemy.takeDamage(25)) {
-          this.score += enemy.scoreValue;
-          this.weaponSystem.updateProgress(this.score);
-          this.sound.play("destroy");
-        }
+        if (enemy.takeDamage(25)) this.awardEnemyKill(enemy);
         enemy.contactCooldown = 0.7;
         const result = this.player.takeDamage(22);
         if (result.applied) this.sound.play("hit");

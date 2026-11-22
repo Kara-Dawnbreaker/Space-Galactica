@@ -9,7 +9,14 @@ export class Projectile {
     this.radius = radius;
     this.pierceRemaining = Math.max(0, Math.floor(pierce));
     this.style = style;
+    this.hitTargets = new Set();
     this.active = true;
+  }
+
+  registerHit(target) {
+    if (this.hitTargets.has(target)) return false;
+    this.hitTargets.add(target);
+    return true;
   }
 
   update(delta, width, height) {

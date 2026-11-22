@@ -58,3 +58,12 @@ test("piercing projectile keeps travelling for its configured extra hits", () =>
   shot.active = false;
   assert.equal(shot.active, false);
 });
+
+test("a piercing projectile can hit different enemies but cannot hit the same enemy twice", () => {
+  const shot = new Projectile({ x: 20, y: 20, vy: -100, pierce: 2 });
+  const first = {}, second = {};
+  assert.equal(shot.registerHit(first), true);
+  assert.equal(shot.registerHit(first), false);
+  assert.equal(shot.registerHit(second), true);
+  assert.equal(shot.hitTargets.size, 2);
+});
