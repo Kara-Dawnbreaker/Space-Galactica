@@ -58,7 +58,7 @@ h2 { margin: 0; font-size: 38px; letter-spacing: .12em; }
 @media (max-width: 650px) {
   .app-shell { gap: 8px; }
   .game-frame { min-height: max(440px, 60svh); }
-   .hud { grid-template-columns: .7fr .45fr .9fr .9fr .55fr 1.1fr; gap: 6px; padding: 8px; }
+  .hud { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; padding: 8px; }
   .hud-label { font-size: 8px; letter-spacing: .07em; }
   .weapon-stat strong { font-size: 10px; }
   .hud-stat strong { font-size: 14px; }
@@ -67,5 +67,5 @@ h2 { margin: 0; font-size: 38px; letter-spacing: .12em; }
   .brand { font-size: 12px; }
   .mode-label { font-size: 9px; letter-spacing: .1em; }
 }
-@media (max-width: 380px) { .hud { grid-template-columns: repeat(3, minmax(0, 1fr)); } .hud-label { font-size: 7px; } }
+@media (max-width: 380px) { .hud { grid-template-columns: repeat(3, minmax(0, 1fr)); } .hud-label { font-size: 7px; } .ability-label { font-size: 8px; } .ability-button { padding: 7px 9px; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; } }
