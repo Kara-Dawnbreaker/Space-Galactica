@@ -43,6 +43,7 @@ The tests use Node's built-in test runner; no third-party packages are required.
 - Score for destroyed enemies (score is not currency)
 - Endless escalating enemy waves with short clear-wave intermissions
 - Combat HUD, game-over screen and basic impact/explosion particles
+- Optional synthesized retro hit/destruction sounds with an in-game sound toggle
 - Deep Space and Deep Sea visual palettes retained
 
 The workshop, meteorite waves, bosses, weapon collection, drops, upgrades, currency, and permanent progression are reserved for later phases.
