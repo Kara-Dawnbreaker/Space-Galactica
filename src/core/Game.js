@@ -77,6 +77,7 @@ export class Game {
     this.state = "running";
     this.lastTime = 0;
     this.callbacks.onModeChange?.(mode);
+    this.callbacks.onPauseChange?.(false, "start");
     this.callbacks.onGameOverChange?.(false);
     this.emitHud();
     this.stopFrame();
