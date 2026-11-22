@@ -8,7 +8,11 @@ export const DROP_CATALOG = [
 export class DropSystem {
   constructor({ chance = 0.12, maxActiveDrops = 3 } = {}) {
     this.chance = Math.max(0, Math.min(1, chance));
-    this.maxActiveDrops = Math.max(1, Math.floor(maxActiveDrops));
+    this.maxActiveDrops = Number.isFinite(maxActiveDrops) ? Math.max(1, Math.floor(maxActiveDrops)) : 3;
+  }
+
+  canSpawn(activeCount) {
+    return Number.isFinite(activeCount) && activeCount < this.maxActiveDrops;
   }
 
   rollDrop(random = Math.random) {

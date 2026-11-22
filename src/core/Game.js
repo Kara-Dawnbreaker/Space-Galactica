@@ -174,7 +174,7 @@ export class Game {
 
   spawnRewardDrop(x, y) {
     const activeCount = this.rewardPickups.filter((pickup) => pickup.active).length;
-    if (activeCount >= this.dropSystem.maxActiveDrops) return false;
+    if (!this.dropSystem.canSpawn(activeCount)) return false;
     const reward = this.dropSystem.rollDrop();
     if (!reward) return false;
     this.rewardPickups.push(new DropPickup({ x, y, ...reward }));

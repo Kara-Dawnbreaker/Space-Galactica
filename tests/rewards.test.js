@@ -10,10 +10,12 @@ function sequence(values) {
   return () => values[index++] ?? 0;
 }
 
-test("reward drops are uncommon and the system exposes a strict active-drop cap", () => {
+test("reward drops are uncommon and the system enforces an active-drop cap", () => {
   const system = new DropSystem();
   assert.equal(system.rollDrop(() => 0.99), null);
   assert.equal(system.maxActiveDrops, 3);
+  assert.equal(system.canSpawn(2), true);
+  assert.equal(system.canSpawn(3), false);
 });
 
 test("weighted reward rolls produce all four supported reward types", () => {
@@ -26,8 +28,8 @@ test("weighted reward rolls produce all four supported reward types", () => {
 
 test("reward pickup falls and deactivates after leaving the playfield", () => {
   const pickup = new DropPickup({ x: 20, y: 10, type: "credits", value: 12 });
-  pickup.update(1, 100);
-  assert.equal(pickup.y, 115);
+  pickup.update(1.1, 100);
+  assert.equal(pickup.y, 125.5);
   assert.equal(pickup.active, false);
 });
 
