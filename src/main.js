@@ -7,6 +7,9 @@ const elements = {
   gameOverScreen: document.querySelector("#game-over-screen"),
   pauseButton: document.querySelector("#pause-button"),
   soundButton: document.querySelector("#sound-button"),
+  abilityButton: document.querySelector("#ability-button"),
+  weaponValue: document.querySelector("#weapon-value"),
+  abilityStatus: document.querySelector("#ability-status"),
   resumeButton: document.querySelector("#resume-button"),
   restartButton: document.querySelector("#restart-button"),
   gameOverRestartButton: document.querySelector("#game-over-restart-button"),
@@ -41,6 +44,9 @@ const game = new Game(elements.canvas, {
     elements.pauseButton.hidden = false;
     elements.soundButton.hidden = false;
   },
+  onWeaponChange(weapon) {
+    elements.weaponValue.textContent = weapon.name;
+  },
   onSoundChange(enabled) {
     elements.soundButton.textContent = enabled ? "Sound: ON" : "Sound: OFF";
     elements.soundButton.setAttribute("aria-pressed", String(enabled));
@@ -51,6 +57,10 @@ const game = new Game(elements.canvas, {
     elements.healthValue.textContent = Math.ceil(hud.health);
     elements.shieldValue.textContent = Math.ceil(hud.shield);
     elements.livesValue.textContent = "♥".repeat(hud.lives) || "—";
+    elements.weaponValue.textContent = hud.weapon;
+    elements.abilityStatus.textContent = hud.abilityReady ? "READY" : `${hud.abilityCooldown.toFixed(1)}s`;
+    elements.abilityButton.disabled = !hud.abilityReady;
+    elements.abilityButton.setAttribute("aria-label", hud.abilityReady ? "Activate Overcharge" : `Overcharge recharging: ${hud.abilityCooldown.toFixed(1)} seconds`);
     elements.healthFill.style.width = `${(hud.health / hud.maxHealth) * 100}%`;
     elements.shieldFill.style.width = `${(hud.shield / hud.maxShield) * 100}%`;
   },
@@ -69,12 +79,17 @@ document.querySelectorAll("[data-mode]").forEach((button) => {
 });
 elements.pauseButton.addEventListener("click", () => game.togglePause());
 elements.soundButton.addEventListener("click", () => game.toggleSound());
+elements.abilityButton.addEventListener("click", () => game.activateOvercharge());
 elements.resumeButton.addEventListener("click", () => game.resume());
 elements.restartButton.addEventListener("click", () => game.restart());
 elements.gameOverRestartButton.addEventListener("click", () => game.restart());
 
 window.addEventListener("keydown", (event) => {
   if (event.repeat) return;
+  if (event.code === "Space") {
+    event.preventDefault();
+    game.activateOvercharge();
+  }
   if (event.key === "Escape" || event.key.toLowerCase() === "p") {
     if (elements.startScreen.hidden && elements.gameOverScreen.hidden) game.togglePause();
   }
