@@ -1,5 +1,5 @@
 export class Projectile {
-  constructor({ x, y, vx = 0, vy, damage = 10, owner = "player", radius = 4 }) {
+  constructor({ x, y, vx = 0, vy, damage = 10, owner = "player", radius = 4, pierce = 0, style = "pulse" }) {
     this.x = x;
     this.y = y;
     this.vx = vx;
@@ -7,6 +7,8 @@ export class Projectile {
     this.damage = damage;
     this.owner = owner;
     this.radius = radius;
+    this.pierceRemaining = Math.max(0, Math.floor(pierce));
+    this.style = style;
     this.active = true;
   }
 
