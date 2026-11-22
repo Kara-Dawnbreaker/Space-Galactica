@@ -170,10 +170,13 @@ export class Game {
     for (const enemy of this.enemies) {
       if (enemy.destroyed || enemy.contactCooldown > 0) continue;
       if (circleIntersectsCircle(enemy, this.player)) {
-        enemy.takeDamage(25);
+        if (enemy.takeDamage(25)) {
+          this.score += enemy.scoreValue;
+          this.sound.play("destroy");
+        }
         enemy.contactCooldown = 0.7;
         const result = this.player.takeDamage(22);
-        this.sound.play("hit");
+        if (result.applied) this.sound.play("hit");
         this.burst(enemy.x, enemy.y, 9);
         if (result.gameOver) this.finishRun();
       }
@@ -203,7 +206,6 @@ export class Game {
     this.input.reset();
     this.stopFrame();
     this.callbacks.onGameOverChange?.(true);
-    this.callbacks.onPauseChange?.(false, "gameover");
     this.emitHud();
     this.render();
   }
