@@ -68,6 +68,7 @@ const game = new Game(elements.canvas, {
     elements.gameOverScreen.hidden = !gameOver;
     if (gameOver) {
       elements.pauseButton.hidden = true;
+      elements.abilityButton.disabled = true;
       elements.statusLabel.textContent = "RUN ENDED";
       elements.finalScore.textContent = elements.scoreValue.textContent;
     }
