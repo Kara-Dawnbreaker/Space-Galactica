@@ -6,6 +6,7 @@ const elements = {
   pauseScreen: document.querySelector("#pause-screen"),
   gameOverScreen: document.querySelector("#game-over-screen"),
   pauseButton: document.querySelector("#pause-button"),
+  soundButton: document.querySelector("#sound-button"),
   resumeButton: document.querySelector("#resume-button"),
   restartButton: document.querySelector("#restart-button"),
   gameOverRestartButton: document.querySelector("#game-over-restart-button"),
@@ -38,6 +39,11 @@ const game = new Game(elements.canvas, {
     elements.startScreen.hidden = true;
     elements.gameOverScreen.hidden = true;
     elements.pauseButton.hidden = false;
+    elements.soundButton.hidden = false;
+  },
+  onSoundChange(enabled) {
+    elements.soundButton.textContent = enabled ? "Sound: ON" : "Sound: OFF";
+    elements.soundButton.setAttribute("aria-pressed", String(enabled));
   },
   onHudUpdate(hud) {
     elements.scoreValue.textContent = hud.score.toLocaleString();
@@ -62,6 +68,7 @@ document.querySelectorAll("[data-mode]").forEach((button) => {
   button.addEventListener("click", () => game.start(button.dataset.mode));
 });
 elements.pauseButton.addEventListener("click", () => game.togglePause());
+elements.soundButton.addEventListener("click", () => game.toggleSound());
 elements.resumeButton.addEventListener("click", () => game.resume());
 elements.restartButton.addEventListener("click", () => game.restart());
 elements.gameOverRestartButton.addEventListener("click", () => game.restart());
