@@ -7,7 +7,7 @@ export class Renderer {
     }));
   }
 
-  draw(width, height, mode, player, state, enemies = [], projectiles = [], particles = []) {
+  draw(width, height, mode, player, state, enemies = [], projectiles = [], particles = [], pickups = []) {
     const ctx = this.ctx;
     const sea = mode === "sea";
     const gradient = ctx.createLinearGradient(0, 0, width, height);
@@ -21,6 +21,7 @@ export class Renderer {
     this.drawBackdrop(width, height, sea);
     if (state !== "menu") {
       enemies.forEach((enemy) => this.drawEnemy(enemy, sea));
+      pickups.forEach((pickup) => this.drawWeaponPickup(pickup));
       projectiles.forEach((projectile) => this.drawProjectile(projectile, sea));
       particles.forEach((particle) => this.drawParticle(particle, sea));
       this.drawPlayer(player, sea);
@@ -86,9 +87,27 @@ export class Renderer {
 
   drawProjectile(projectile, sea) {
     const ctx = this.ctx;
-    ctx.save(); ctx.fillStyle = projectile.owner === "player" ? (sea ? "#7effe9" : "#8cecff") : "#ff8d9d";
+    const colors = { "heavy-bolt": "#ffb45e", "plasma-orb": "#bc8cff", "rail-shot": "#fff2a8", "singularity": "#df9cff", "solar-flare": "#ff9b5e", "piercer": "#9cf7ff" };
+    ctx.save(); ctx.fillStyle = projectile.owner === "player" ? (colors[projectile.style] ?? (sea ? "#7effe9" : "#8cecff")) : "#ff8d9d";
     ctx.shadowColor = ctx.fillStyle; ctx.shadowBlur = 10;
     ctx.beginPath(); ctx.arc(projectile.x, projectile.y, projectile.radius, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+  }
+
+  drawWeaponPickup(pickup) {
+    const ctx = this.ctx;
+    ctx.save();
+    ctx.translate(pickup.x, pickup.y);
+    ctx.rotate(pickup.age * 1.8);
+    ctx.shadowColor = "#ffe27a";
+    ctx.shadowBlur = 16;
+    ctx.fillStyle = "#ffe27a";
+    ctx.beginPath();
+    ctx.moveTo(0, -12); ctx.lineTo(11, 0); ctx.lineTo(0, 12); ctx.lineTo(-11, 0);
+    ctx.closePath(); ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = "#33250b";
+    ctx.fillRect(-2, -6, 4, 12);
+    ctx.restore();
   }
 
   drawParticle(particle, sea) {
