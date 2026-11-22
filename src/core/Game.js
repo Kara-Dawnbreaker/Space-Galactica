@@ -26,6 +26,7 @@ export class Game {
     this.weaponSystem = new WeaponSystem();
     this.abilitySystem = new AbilitySystem();
     this.weaponPickups = [];
+    this.abilityEffects = [];
     this.enemies = [];
     this.projectiles = [];
     this.particles = [];
@@ -36,7 +37,6 @@ export class Game {
     this.width = 1;
     this.height = 1;
     this.score = 0;
-    this.fireTimer = 0;
     this.enemySequence = 0;
 
     this.resizeObserver = new ResizeObserver(() => this.resize());
@@ -77,6 +77,7 @@ export class Game {
     this.projectiles = [];
     this.particles = [];
     this.weaponPickups = [];
+    this.abilityEffects = [];
     this.weaponSystem.resetRun();
     this.abilitySystem = new AbilitySystem();
     this.score = 0;
@@ -138,6 +139,8 @@ export class Game {
     this.projectiles = this.projectiles.filter((projectile) => projectile.active);
     this.weaponPickups = this.weaponPickups.filter((pickup) => pickup.active);
     this.updateParticles(delta);
+    for (const effect of this.abilityEffects) effect.life -= delta;
+    this.abilityEffects = this.abilityEffects.filter((effect) => effect.life > 0);
     this.emitHud();
   }
 
@@ -223,6 +226,7 @@ export class Game {
     const result = this.abilitySystem.activate(this.player, this.enemies);
     if (!result.activated) return false;
     this.sound.play("destroy");
+    this.abilityEffects.push({ x: this.player.x, y: this.player.y, radius: this.abilitySystem.radius, life: 0.48, maxLife: 0.48 });
     this.burst(this.player.x, this.player.y, 30);
     for (const enemy of result.destroyed) {
       this.score += enemy.scoreValue;
@@ -273,7 +277,7 @@ export class Game {
   }
 
   render() {
-    this.renderer.draw(this.width, this.height, this.mode, this.player, this.state, this.enemies, this.projectiles, this.particles, this.weaponPickups);
+    this.renderer.draw(this.width, this.height, this.mode, this.player, this.state, this.enemies, this.projectiles, this.particles, this.weaponPickups, this.abilityEffects);
   }
 
   toggleSound() {
