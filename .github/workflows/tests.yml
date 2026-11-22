@@ -1,10 +1,10 @@
-name: Foundation checks
+name: Phase 2 combat checks
 
 on:
   push:
-    branches: [main, phase-1-foundation]
+    branches: [main, phase-1-foundation, phase-2-core-combat]
   pull_request:
-    branches: [main]
+    branches: [main, phase-1-foundation]
 
 jobs:
   node-tests:
@@ -18,5 +18,5 @@ jobs:
           node-version: 22
       - name: Check JavaScript syntax
         run: find src tests -name '*.js' -print0 | xargs -0 -n1 node --check
-      - name: Run foundation tests
+      - name: Run automated tests
         run: npm test
