@@ -4,6 +4,7 @@ import { Player } from "../entities/Player.js";
 import { Enemy } from "../entities/Enemy.js";
 import { Projectile } from "../entities/Projectile.js";
 import { WaveDirector } from "../systems/WaveDirector.js";
+import { SoundManager } from "./SoundManager.js";
 import { circleIntersectsCircle } from "./collision.js";
 
 export class Game {
@@ -18,6 +19,7 @@ export class Game {
     this.renderer = new Renderer(this.context);
     this.player = new Player();
     this.waveDirector = new WaveDirector();
+    this.sound = new SoundManager();
     this.enemies = [];
     this.projectiles = [];
     this.particles = [];
@@ -62,6 +64,7 @@ export class Game {
   start(mode) {
     if (mode !== "space" && mode !== "sea") return;
     this.mode = mode;
+    this.sound.unlock();
     this.player.reset(this.width, this.height);
     this.input.reset();
     this.enemies = [];
@@ -147,6 +150,7 @@ export class Game {
             projectile.active = false;
             if (enemy.takeDamage(projectile.damage)) {
               this.score += enemy.scoreValue;
+              this.sound.play("destroy");
               this.burst(enemy.x, enemy.y, enemy.type === "tank" ? 18 : 10);
             }
             break;
@@ -155,7 +159,10 @@ export class Game {
       } else if (circleIntersectsCircle(projectile, this.player)) {
         projectile.active = false;
         const result = this.player.takeDamage(projectile.damage);
-        if (result.applied) this.burst(this.player.x, this.player.y, 7);
+        if (result.applied) {
+          this.sound.play("hit");
+          this.burst(this.player.x, this.player.y, 7);
+        }
         if (result.gameOver) this.finishRun();
       }
     }
@@ -166,6 +173,7 @@ export class Game {
         enemy.takeDamage(25);
         enemy.contactCooldown = 0.7;
         const result = this.player.takeDamage(22);
+        this.sound.play("hit");
         this.burst(enemy.x, enemy.y, 9);
         if (result.gameOver) this.finishRun();
       }
@@ -212,6 +220,12 @@ export class Game {
     this.renderer.draw(this.width, this.height, this.mode, this.player, this.state, this.enemies, this.projectiles, this.particles);
   }
 
+  toggleSound() {
+    const enabled = this.sound.toggle();
+    this.callbacks.onSoundChange?.(enabled);
+    return enabled;
+  }
+
   togglePause() {
     if (this.state === "running") this.pause();
     else if (this.state === "paused") this.resume();
@@ -251,5 +265,6 @@ export class Game {
     this.resizeObserver.disconnect();
     document.removeEventListener("visibilitychange", this.handleVisibilityChange);
     this.input.destroy();
+    this.sound.destroy();
   }
 }
